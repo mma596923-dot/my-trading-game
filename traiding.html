@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Трейдинг Ойыны</title>
+    <style>
+        body { background: #0e1117; color: #00ff88; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; margin: 0; }
+        canvas { background: #161b22; border: 2px solid #30363d; border-radius: 8px; margin-top: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .info { margin-top: 15px; font-size: 20px; font-weight: bold; }
+        .controls { margin-top: 10px; color: #8b949e; }
+    </style>
+</head>
+<body>
+    <div class="info">Баланс: $<span id="balance">1000</span> | Акция: <span id="shares">0</span></div>
+    <canvas id="chart" width="700" height="400"></canvas>
+    <div class="controls">БАСУ: [B] - Сатып алу | [S] - Сату</div>
+
+    <script>
+        const canvas = document.getElementById('chart');
+        const ctx = canvas.getContext('2d');
+        const balanceEl = document.getElementById('balance');
+        const sharesEl = document.getElementById('shares');
+
+        let balance = 1000;
+        let shares = 0;
+        let prices = [100];
+        let x = 0;
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#00ff88';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height - prices[0]);
+
+            for (let i = 1; i < prices.length; i++) {
+                ctx.lineTo(i * 5, canvas.height - prices[i]);
+            }
+            ctx.stroke();
+
+            // Жаңа баға генерациясы
+            let lastPrice = prices[prices.length - 1];
+            let nextPrice = lastPrice + (Math.random() - 0.5) * 10;
+            if (nextPrice < 10) nextPrice = 10;
+            if (nextPrice > 380) nextPrice = 380;
+            prices.push(nextPrice);
+
+            if (prices.length * 5 > canvas.width) prices.shift();
+
+            requestAnimationFrame(draw);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            let currentPrice = prices[prices.length - 1];
+            if (e.key.toLowerCase() === 'b' && balance >= currentPrice) {
+                balance -= currentPrice;
+                shares++;
+            } else if (e.key.toLowerCase() === 's' && shares > 0) {
+                balance += currentPrice;
+                shares--;
+            }
+            balanceEl.innerText = Math.floor(balance);
+            sharesEl.innerText = shares;
+        });
+
+        draw();
+    </script>
+</body>
+</html>
